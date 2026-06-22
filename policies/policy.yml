@@ -1,0 +1,133 @@
+policies:
+  # --------------------------------------------------------
+  # EC2 Instances
+  # --------------------------------------------------------
+  - name: client-ec2-inventory-mark
+    resource: ec2
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+    actions:
+      - type: mark-for-op
+        op: terminate
+        days: 30
+
+  - name: client-ec2-inventory-cleanup
+    resource: ec2
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: terminate
+      - "tag:keep": absent
+    actions:
+      - type: terminate
+
+  # --------------------------------------------------------
+  # RDS Instances
+  # --------------------------------------------------------
+  - name: client-rds-inventory-mark
+    resource: rds
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+    actions:
+      - type: mark-for-op
+        op: delete
+        days: 30
+
+  - name: client-rds-inventory-cleanup
+    resource: rds
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: delete
+      - "tag:keep": absent
+    actions:
+      - type: delete
+        skip-snapshot: true
+
+  # --------------------------------------------------------
+  # S3 Buckets
+  # --------------------------------------------------------
+  - name: client-s3-inventory-mark
+    resource: s3
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+    actions:
+      - type: mark-for-op
+        op: delete
+        days: 30
+
+  - name: client-s3-inventory-cleanup
+    resource: s3
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: delete
+      - "tag:keep": absent
+    actions:
+      - type: delete
+        remove-contents: true
+
+  # --------------------------------------------------------
+  # IAM Roles
+  # Guard: never mark/delete the custodian's own execution role.
+  # --------------------------------------------------------
+  - name: client-iam-inventory-mark
+    resource: iam-role
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+      - type: value
+        key: RoleName
+        op: not-in
+        value:
+          - "${CUSTODIAN_ROLE_NAME}"
+    actions:
+      - type: mark-for-op
+        op: delete
+        days: 30
+
+  - name: client-iam-inventory-cleanup
+    resource: iam-role
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CUSTODIAN_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: delete
+      - "tag:keep": absent
+      - type: value
+        key: RoleName
+        op: not-in
+        value:
+          - "${CUSTODIAN_ROLE_NAME}"
+    actions:
+      - type: delete
