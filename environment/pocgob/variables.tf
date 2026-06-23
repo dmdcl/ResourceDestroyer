@@ -26,3 +26,13 @@ variable "custodian_bin" {
   type        = string
   default     = "custodian"
 }
+
+variable "alert_email" {
+  description = "email to alerts"
+  type        = string
+  default     = "test@email.com"
+}
+
+variable "sender_email" {
+  
+}

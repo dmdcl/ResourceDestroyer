@@ -37,6 +37,17 @@ module "lambda" {
   environment         = var.environment
   custodian_role_arn  = module.iam.custodian_role_arn
   custodian_role_name = module.iam.custodian_role_name
+  sns_topic_arn = module.notifications.sns_topic_arn
+  sqs_queue_url = module.notifications.sqs_queue_url
+  alert_email = var.alert_email
+  sender_email = var.sender_email
   policy_file_path    = "../../policies/policy.yml"
+  mailer_template_path = "../../policies/mailer.yml"
   custodian_bin = var.custodian_bin
+}
+
+module "notifications" {
+  source = "../../modules/notifications"
+  project = var.project
+  environment = var.environment
 }
