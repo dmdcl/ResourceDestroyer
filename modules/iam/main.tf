@@ -97,7 +97,8 @@ resource "aws_iam_role_policy" "custodian_inventory" {
           "iam:ListRolePolicies",
           "iam:DetachRolePolicy",
           "iam:DeleteRolePolicy",
-          "iam:DeleteRole"
+          "iam:DeleteRole",
+          "iam:ListAccountAliases"
         ]
         # Explicitly deny self-deletion: custodian cannot delete its own role
         NotResource = "arn:aws:iam::*:role/${var.project}-${var.environment}-custodian-lambda-role"
@@ -110,6 +111,20 @@ resource "aws_iam_role_policy" "custodian_inventory" {
           "events:PutTargets",
           "events:DescribeRule",
           "lambda:AddPermission"
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "MessagingAndMailer"
+        Effect = "Allow"
+        Action = [
+          "sns:Publish",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:GetQueueAttributes",
+          "ses:SendEmail",
+          "ses:SendRawEmail",
+          "sqs:sendmessage"
         ]
         Resource = "*"
       }

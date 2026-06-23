@@ -8,6 +8,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -15,6 +16,15 @@ policies:
       - type: mark-for-op
         op: terminate
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-ec2-inventory-cleanup
     resource: ec2
@@ -38,6 +48,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -46,6 +57,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-ebs-inventory-cleanup
     resource: ebs
@@ -70,6 +90,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -81,6 +102,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-ebs-snapshot-inventory-cleanup
     resource: ebs-snapshot
@@ -104,6 +134,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -115,6 +146,15 @@ policies:
       - type: mark-for-op
         op: deregister
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-ami-inventory-cleanup
     resource: ami
@@ -138,6 +178,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -149,6 +190,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-eni-inventory-cleanup
     resource: eni
@@ -176,6 +226,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -186,6 +237,15 @@ policies:
       - type: mark-for-op
         op: release
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-elastic-ip-inventory-cleanup
     resource: elastic-ip
@@ -212,6 +272,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -223,6 +284,15 @@ policies:
       - type: mark-for-op
         op: delete-empty
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-vpc-inventory-cleanup
     resource: vpc
@@ -250,6 +320,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -260,6 +331,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-igw-inventory-cleanup
     resource: internet-gateway
@@ -286,6 +366,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -299,6 +380,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-nat-inventory-cleanup
     resource: nat-gateway
@@ -322,6 +412,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -333,6 +424,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-subnet-inventory-cleanup
     resource: subnet
@@ -360,6 +460,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -372,6 +473,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-sg-inventory-cleanup
     resource: security-group
@@ -400,6 +510,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -407,6 +518,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-rds-inventory-cleanup
     resource: rds
@@ -431,6 +551,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -442,6 +563,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-rds-snapshot-inventory-cleanup
     resource: rds-snapshot
@@ -465,6 +595,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -472,6 +603,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-rds-subnet-group-inventory-cleanup
     resource: rds-subnet-group
@@ -495,6 +635,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -502,6 +643,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-s3-inventory-cleanup
     resource: s3
@@ -526,6 +676,7 @@ policies:
       type: periodic
       schedule: "rate(1 day)"
       role: "${CUSTODIAN_ROLE_ARN}"
+      packages: [jwt]
     filters:
       - "tag:keep": absent
       - "tag:maid_status": absent
@@ -538,6 +689,15 @@ policies:
       - type: mark-for-op
         op: delete
         days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Client Resource Scheduled for Deletion"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
 
   - name: client-iam-inventory-cleanup
     resource: iam-role

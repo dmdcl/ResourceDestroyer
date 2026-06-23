@@ -53,3 +53,4 @@ index.html
 
 #ignore artifacts lolololol
 modules/lambda/rendered_policy.yml
+modules/lambda/rendered_mailer.yml

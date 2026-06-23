@@ -34,3 +34,26 @@ variable "policy_file_path" {
   type        = string
 }
 
+variable "sns_topic_arn" {
+  description = "ARN of the SNS topic used for client infrastructure notifications."
+  type        = string
+}
+
+variable "sqs_queue_url" {
+  description = "URL of the SQS queue for the mailer."
+  type        = string
+}
+
+variable "mailer_template_path" {
+  description = "Absolute path to the mailer template YAML file."
+  type        = string
+}
+
+variable "alert_email" {
+  description = "Central email address to receive all resource deletion alerts."
+  type        = string
+}
+
+variable "sender_email" {
+  
+}

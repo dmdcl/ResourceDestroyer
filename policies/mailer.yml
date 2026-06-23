@@ -1,0 +1,5 @@
+queue_url: "${SQS_QUEUE_URL}"
+role: "${CUSTODIAN_ROLE_ARN}"
+from_address: "${SENDER_EMAIL}"
+region: "${AWS_REGION}"
+ses_region: "${AWS_REGION}"
