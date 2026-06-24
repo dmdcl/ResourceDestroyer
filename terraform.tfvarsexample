@@ -1,0 +1,10 @@
+# EXAMPLE OF VARIABLES
+# PUT THIS INSIDE: **environment/account/terraform.tfvars** remove the "example"
+region  = "region"
+project     = "name"
+environment = "account or environment"
+profile = "default"
+custodian_bin = "route where do you run custodian:
+in my case because i am on venv is: /home/user/custodian/bin/custodian"
+alert_email = "user@email.com"
+sender_email = "user@email.com"
