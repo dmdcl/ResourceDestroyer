@@ -19,18 +19,23 @@ variable "environment" {
   type        = string
 }
 
-variable "custodian_role_arn" {
-  description = "ARN of the IAM role Cloud Custodian Lambda functions assume."
+variable "mark_role_arn" {
+  description = "ARN of the mark-phase IAM role (read + tag only)."
   type        = string
 }
 
-variable "custodian_role_name" {
-  description = "Name of the IAM role Cloud Custodian Lambda functions assume; used to prevent self-deletion in IAM policies."
+variable "cleanup_role_arn" {
+  description = "ARN of the cleanup-phase IAM role (destructive actions only)."
   type        = string
 }
 
-variable "policy_file_path" {
-  description = "Absolute path to the Cloud Custodian policy YAML file."
+variable "mailer_role_arn" {
+  description = "ARN of the mailer IAM role (SQS consume + SES send only)."
+  type        = string
+}
+
+variable "policy_dir" {
+  description = "Path to the directory containing per-resource Cloud Custodian policy YAML files."
   type        = string
 }
 
@@ -55,5 +60,6 @@ variable "alert_email" {
 }
 
 variable "sender_email" {
-  
+  description = "Verified SES email address used as the mailer From address."
+  type        = string
 }

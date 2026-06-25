@@ -6,3 +6,8 @@ output "sqs_queue_url" {
   description = "URL of the SQS queue used by the custodian mailer."
   value       = aws_sqs_queue.custodian_mailer.url
 }
+
+output "sqs_queue_arn" {
+  description = "ARN of the SQS queue used by the custodian mailer."
+  value       = aws_sqs_queue.custodian_mailer.arn
+}

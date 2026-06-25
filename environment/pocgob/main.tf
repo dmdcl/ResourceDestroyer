@@ -18,36 +18,39 @@ terraform {
 }
 
 provider "aws" {
-  region = var.region
+  region  = var.region
   profile = var.profile
+}
+
+module "notifications" {
+  source      = "../../modules/notifications"
+  project     = var.project
+  environment = var.environment
 }
 
 module "iam" {
   source = "../../modules/iam"
 
-  project     = var.project
-  environment = var.environment
+  project                = var.project
+  environment            = var.environment
+  sqs_queue_arn          = module.notifications.sqs_queue_arn
+  terraform_state_bucket = var.terraform_state_bucket
 }
 
 module "lambda" {
   source = "../../modules/lambda"
 
-  aws_region          = var.region
-  project             = var.project
-  environment         = var.environment
-  custodian_role_arn  = module.iam.custodian_role_arn
-  custodian_role_name = module.iam.custodian_role_name
-  sns_topic_arn = module.notifications.sns_topic_arn
-  sqs_queue_url = module.notifications.sqs_queue_url
-  alert_email = var.alert_email
-  sender_email = var.sender_email
-  policy_file_path    = "../../policies/policy.yml"
+  aws_region           = var.region
+  project              = var.project
+  environment          = var.environment
+  mark_role_arn        = module.iam.mark_role_arn
+  cleanup_role_arn     = module.iam.cleanup_role_arn
+  mailer_role_arn      = module.iam.mailer_role_arn
+  sns_topic_arn        = module.notifications.sns_topic_arn
+  sqs_queue_url        = module.notifications.sqs_queue_url
+  alert_email          = var.alert_email
+  sender_email         = var.sender_email
+  policy_dir           = "${path.module}/../../policies/resources"
   mailer_template_path = "../../policies/mailer.yml"
-  custodian_bin = var.custodian_bin
-}
-
-module "notifications" {
-  source = "../../modules/notifications"
-  project = var.project
-  environment = var.environment
+  custodian_bin        = var.custodian_bin
 }

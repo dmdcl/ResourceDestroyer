@@ -34,5 +34,12 @@ variable "alert_email" {
 }
 
 variable "sender_email" {
-  
+  description = "Verified SES email address used as the mailer From address."
+  type        = string
+}
+
+variable "terraform_state_bucket" {
+  description = "Name of the S3 bucket holding Terraform state; explicitly denied in cleanup role."
+  type        = string
+  default     = "terraformstatefilesacces2025"
 }

@@ -1,0 +1,85 @@
+policies:
+  # --------------------------------------------------------
+  # STEP 1: The Mark (30-Day Warning)
+  # --------------------------------------------------------
+  - name: client-ami-inventory-mark
+    resource: ami
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+      packages: [jwt]
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+      - type: value
+        key: OwnerId
+        op: eq
+        value: "${ACCOUNT_ID}"
+    actions:
+      - type: mark-for-op
+        op: deregister
+        days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: AMI Scheduled for Deregistration in 30 Days"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 2: The Skew (1-Day Final Warning)
+  # --------------------------------------------------------
+  - name: client-ami-inventory-notify-warning
+    resource: ami
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - type: value
+        key: OwnerId
+        op: eq
+        value: "${ACCOUNT_ID}"
+      - type: marked-for-op
+        op: deregister
+        skew: 1
+    actions:
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "FINAL WARNING: AMI Will Be Deregistered TOMORROW"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 3: The Cleanup (Execution & Final Notification)
+  # --------------------------------------------------------
+  - name: client-ami-inventory-cleanup
+    resource: ami
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CLEANUP_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: deregister
+      - "tag:keep": absent
+    actions:
+      - type: deregister
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "Alert: AMI Has Been Deregistered"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"

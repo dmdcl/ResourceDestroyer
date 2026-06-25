@@ -1,0 +1,77 @@
+policies:
+  # --------------------------------------------------------
+  # STEP 1: The Mark (30-Day Warning)
+  # --------------------------------------------------------
+  - name: client-eks-inventory-mark
+    resource: eks
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+      packages: [jwt]
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+    actions:
+      - type: mark-for-op
+        op: delete
+        days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: EKS Cluster Scheduled for Deletion in 30 Days"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 2: The Skew (1-Day Final Warning)
+  # --------------------------------------------------------
+  - name: client-eks-inventory-notify-warning
+    resource: eks
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - type: marked-for-op
+        op: delete
+        skew: 1
+    actions:
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "FINAL WARNING: EKS Cluster Will Be Deleted TOMORROW"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 3: The Cleanup (Execution & Final Notification)
+  # --------------------------------------------------------
+  - name: client-eks-inventory-cleanup
+    resource: eks
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CLEANUP_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: delete
+      - "tag:keep": absent
+    actions:
+      - type: delete
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "Alert: EKS Cluster Has Been Deleted"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"

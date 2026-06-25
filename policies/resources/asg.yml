@@ -1,0 +1,77 @@
+policies:
+  # --------------------------------------------------------
+  # STEP 1: The Mark (30-Day Warning)
+  # --------------------------------------------------------
+  - name: client-asg-inventory-mark
+    resource: asg
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+      packages: [jwt]
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+    actions:
+      - type: mark-for-op
+        op: delete
+        days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: Auto Scaling Group Scheduled for Deletion in 30 Days"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 2: The Skew (1-Day Final Warning)
+  # --------------------------------------------------------
+  - name: client-asg-inventory-notify-warning
+    resource: asg
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - type: marked-for-op
+        op: delete
+        skew: 1
+    actions:
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "FINAL WARNING: Auto Scaling Group Will Be Deleted TOMORROW"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 3: The Cleanup (Execution & Final Notification)
+  # --------------------------------------------------------
+  - name: client-asg-inventory-cleanup
+    resource: asg
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CLEANUP_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: delete
+      - "tag:keep": absent
+    actions:
+      - type: delete
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "Alert: Auto Scaling Group Has Been Deleted"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"

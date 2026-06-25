@@ -1,0 +1,77 @@
+policies:
+  # --------------------------------------------------------
+  # STEP 1: The Mark (30-Day Warning)
+  # --------------------------------------------------------
+  - name: client-ec2-inventory-mark
+    resource: ec2
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+      packages: [jwt]
+    filters:
+      - "tag:keep": absent
+      - "tag:maid_status": absent
+    actions:
+      - type: mark-for-op
+        op: terminate
+        days: 30
+      - type: notify
+        template: default.html
+        priority_header: '2'
+        subject: "Action Required: EC2 Instance Scheduled for Termination in 30 Days"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 2: The Skew (1-Day Final Warning)
+  # --------------------------------------------------------
+  - name: client-ec2-inventory-notify-warning
+    resource: ec2
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${MARK_ROLE_ARN}"
+    filters:
+      - "tag:keep": absent
+      - type: marked-for-op
+        op: terminate
+        skew: 1
+    actions:
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "FINAL WARNING: EC2 Instance Will Be Terminated TOMORROW"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
+
+  # --------------------------------------------------------
+  # STEP 3: The Cleanup (Execution & Final Notification)
+  # --------------------------------------------------------
+  - name: client-ec2-inventory-cleanup
+    resource: ec2
+    mode:
+      type: periodic
+      schedule: "rate(1 day)"
+      role: "${CLEANUP_ROLE_ARN}"
+    filters:
+      - type: marked-for-op
+        op: terminate
+      - "tag:keep": absent
+    actions:
+      - type: terminate
+      - type: notify
+        template: default.html
+        priority_header: '1'
+        subject: "Alert: EC2 Instance Has Been Terminated"
+        to:
+          - "${ALERT_EMAIL}"
+        transport:
+          type: sqs
+          queue: "${SQS_QUEUE_URL}"
